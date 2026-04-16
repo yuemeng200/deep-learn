@@ -63,16 +63,16 @@ function generateNav() {
 }
 
 export default defineConfig({
-  title: '深度学习课程',
-  description: '渐进式技术课程合集',
+  title: 'Deep Learn',
+  description: 'Progressive Technical Courses',
 
   cleanUrls: true,
   lastUpdated: true,
 
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
-    ['meta', { property: 'og:title', content: '深度学习课程' }],
-    ['meta', { property: 'og:description', content: '渐进式技术课程合集' }],
+    ['meta', { property: 'og:title', content: 'Deep Learn' }],
+    ['meta', { property: 'og:description', content: 'Progressive Technical Courses' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }]
   ],
 
@@ -82,8 +82,8 @@ export default defineConfig({
 
   markdown: {
     theme: {
-      light: 'vitesse-light',
-      dark: 'vitesse-dark'
+      light: 'github-light',
+      dark: 'github-dark'
     }
   },
 
@@ -106,8 +106,5 @@ export default defineConfig({
       next: '下一章'
     },
 
-    footer: {
-      message: '基于 VitePress 构建'
-    }
   }
 })
