@@ -66,6 +66,7 @@ export default defineConfig({
   title: 'Deep Learn',
   description: 'Progressive Technical Courses',
 
+  base: '/deep-learn/',
   cleanUrls: true,
   lastUpdated: true,
 
