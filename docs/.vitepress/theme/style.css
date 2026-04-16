@@ -1,0 +1,68 @@
+/* 中文字体与排版优化 */
+:root {
+  --vp-font-family-base: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei',
+    system-ui, -apple-system, sans-serif;
+  --vp-font-family-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+}
+
+.vp-doc {
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+
+/* 引用块样式 — 章节开头的引言更突出 */
+.vp-doc blockquote {
+  border-left: 4px solid var(--vp-c-brand-1);
+  background-color: var(--vp-c-bg-soft);
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 0 8px 8px 0;
+  color: var(--vp-c-text-2);
+  font-style: normal;
+}
+
+.vp-doc blockquote p {
+  margin: 0;
+}
+
+/* 表格样式 */
+.vp-doc table {
+  display: table;
+  width: 100%;
+  overflow: auto;
+  border-collapse: collapse;
+}
+
+.vp-doc th,
+.vp-doc td {
+  padding: 10px 16px;
+  line-height: 1.6;
+}
+
+.vp-doc tr:nth-child(even) {
+  background-color: var(--vp-c-bg-soft);
+}
+
+/* 代码块行号 */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+}
+
+/* 首页 features 卡片 */
+.VPFeatures .item {
+  padding: 12px;
+}
+
+.VPFeature {
+  border-radius: 12px;
+  transition: box-shadow 0.25s ease;
+}
+
+.VPFeature:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 侧边栏激活项 */
+.VPSidebarItem.is-active > .item .link .text {
+  font-weight: 600;
+}
