@@ -4,6 +4,21 @@ import path from 'path'
 
 const coursesDir = path.resolve(__dirname, '../courses')
 
+// 从课程名取确定性 emoji
+const EMOJI_POOL = [
+  '🚀','⚡','🔥','💡','🎯','🧩','🔧','📡','🧪','🎨',
+  '🌊','🏗️','🔬','🛠️','📦','🧲','🌿','💎','🎲','🔮',
+  '🪐','🧬','🗺️','📐','🔑','🎵','🌀','🪄','🧭','🏹',
+]
+
+function hashEmoji(name: string): string {
+  let h = 0
+  for (let i = 0; i < name.length; i++) {
+    h = ((h << 5) - h + name.charCodeAt(i)) | 0
+  }
+  return EMOJI_POOL[Math.abs(h) % EMOJI_POOL.length]
+}
+
 // 从 .md 文件第一行提取 H1 标题
 function extractTitle(filePath: string): string {
   const content = fs.readFileSync(filePath, 'utf-8')
@@ -62,6 +77,22 @@ function generateNav() {
     }))
 }
 
+// 自动生成首页课程卡片（emoji 由课程名 hash 决定）
+function generateFeatures() {
+  if (!fs.existsSync(coursesDir)) return []
+
+  return fs.readdirSync(coursesDir)
+    .filter(f => fs.statSync(path.join(coursesDir, f)).isDirectory())
+    .map(course => {
+      const shortName = course.replace(/-课程$/, '')
+      return {
+        icon: hashEmoji(shortName),
+        title: shortName,
+        link: `/courses/${course}/`,
+      }
+    })
+}
+
 export default defineConfig({
   title: 'Deep Learn',
   description: 'Progressive Technical Courses',
@@ -69,6 +100,13 @@ export default defineConfig({
   base: '/deep-learn/',
   cleanUrls: true,
   lastUpdated: true,
+
+  // 自动注入首页课程卡片
+  transformPageData(pageData) {
+    if (pageData.relativePath === 'index.md') {
+      pageData.frontmatter.features = generateFeatures()
+    }
+  },
 
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
