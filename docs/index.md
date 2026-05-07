@@ -8,5 +8,5 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /courses/Go-Redis-课程/
+      link: /courses/Go-Redis/
 ---
