@@ -76,7 +76,7 @@ function generateNav() {
   return fs.readdirSync(coursesDir)
     .filter(f => fs.statSync(path.join(coursesDir, f)).isDirectory())
     .map(course => ({
-      text: course.replace(/-课程$/, ''),
+      text: course,
       link: `/courses/${course}/`
     }))
 }
@@ -88,10 +88,9 @@ function generateFeatures() {
   return fs.readdirSync(coursesDir)
     .filter(f => fs.statSync(path.join(coursesDir, f)).isDirectory())
     .map(course => {
-      const shortName = course.replace(/-课程$/, '')
       return {
-        icon: hashEmoji(shortName),
-        title: shortName,
+        icon: hashEmoji(course),
+        title: course,
         link: `/courses/${course}/`,
       }
     })
