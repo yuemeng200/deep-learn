@@ -26,13 +26,17 @@ function extractTitle(filePath: string): string {
   return match ? match[1] : path.basename(filePath, '.md')
 }
 
-// 自定义排序：课程大纲 → 第N章（按数字） → 结业总结
+// 自定义排序：课程大纲 → 第N章（按数字） → 第N章补充（紧跟其后） → 结业总结
 function sortFiles(a: string, b: string): number {
   const order = (name: string): number => {
     if (name === 'index.md') return -2
     if (name.startsWith('00-')) return -1
     const m = name.match(/^第(\d+)章/)
-    if (m) return parseInt(m[1])
+    if (m) {
+      // "第5章补充" 排在 5.5，紧跟第5章之后
+      if (name.includes('补充')) return parseInt(m[1]) + 0.5
+      return parseInt(m[1])
+    }
     if (name === '结业总结.md') return 999
     return 500
   }
