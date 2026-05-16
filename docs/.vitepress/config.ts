@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import type { Plugin } from 'vite'
 import fs from 'fs'
 import path from 'path'
 
@@ -77,12 +78,26 @@ function getDocMeta(filePath: string): DocMeta {
   const content = fs.readFileSync(filePath, 'utf-8')
   const frontmatter = parseFrontmatter(filePath)
   const match = content.match(/^#\s+(.+)$/m)
+  const basename = path.basename(filePath, '.md')
 
-  return {
-    title: frontmatter.title || (match ? match[1] : path.basename(filePath, '.md')),
-    date: frontmatter.date,
-    summary: frontmatter.summary
+  // 从 frontmatter 取值，缺失时从文件名/标题推断
+  const title = frontmatter.title || (match ? match[1] : basename)
+
+  let date = frontmatter.date
+  if (!date) {
+    // 从文件名提取日期（如 2026-05-16.md）
+    const dateFromName = basename.match(/^(\d{4}-\d{2}-\d{2})/)
+    if (dateFromName) date = dateFromName[1]
   }
+
+  let summary = frontmatter.summary
+  if (!summary && match) {
+    // 从标题提取标签部分作为摘要（如 "# 2026-05-16 · tag1, tag2" → "tag1, tag2"）
+    const tagPart = match[1].replace(/^\d{4}-\d{2}-\d{2}\s*·?\s*/, '').trim()
+    if (tagPart) summary = tagPart
+  }
+
+  return { title, date, summary }
 }
 
 // 从 .md 文件提取展示标题
@@ -166,6 +181,29 @@ function generateTimeline(): TimelineItem[] {
   }
 
   return items.sort((a, b) => b.date.localeCompare(a.date))
+}
+
+// 监听 docs 目录新增/删除 .md 文件，自动重启 dev server 以刷新 sidebar/nav
+function watchDocsPlugin(): Plugin {
+  let restartTimer: ReturnType<typeof setTimeout> | null = null
+  let isReady = false
+
+  return {
+    name: 'watch-docs',
+    configureServer(server) {
+      server.watcher.on('ready', () => { isReady = true })
+
+      server.watcher.on('all', (event, file) => {
+        if (!isReady) return
+        if ((event !== 'add' && event !== 'unlink') || !file.endsWith('.md') || !file.startsWith(docsDir)) return
+        if (restartTimer) clearTimeout(restartTimer)
+        restartTimer = setTimeout(() => {
+          server.restart()
+          restartTimer = null
+        }, 300)
+      })
+    }
+  }
 }
 
 // 自动生成侧边栏（遍历所有系列）
@@ -257,6 +295,10 @@ function generateNav() {
 export default defineConfig({
   title: '新知',
   description: '一个持续生长的个人知识系统，收录研习、拆解与礼记。',
+
+  vite: {
+    plugins: [watchDocsPlugin()]
+  },
 
   cleanUrls: true,
   lastUpdated: true,
