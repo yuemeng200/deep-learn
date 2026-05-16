@@ -1,0 +1,55 @@
+# DeerFlow 核心架构认知
+
+**Q1：DeerFlow 前后端交互的核心接口有哪些？Thread、Run、Message 三者是什么关系？**
+
+3 个核心接口：`POST /api/threads`（创建会话）、`POST /api/threads/{id}/runs/stream`（发起 SSE 流式执行）、`GET /api/threads/{id}/runs/{id}/messages`（拉取消息）。
+
+三者的嵌套关系：Thread（会话容器）→ Run（一次执行流）→ Message（语义消息）。一个 Thread 包含多个 Run（多轮对话），一个 Run 包含多条 Message。
+
+Message 有三种类型：HumanMessage（用户输入）、AIMessage（AI 完整回复）、ToolMessage（工具执行结果）。一个 Run 遵循 ReAct 模式：`HumanMessage → [AIMessage → ToolMessage] 循环 → AIMessage（最终回答）`。AI 和工具之间反复交互，直到 AI 不再调用工具、直接给出文字回答，Run 结束。
+
+> 💡 **Tips**：SSE 事件 ≠ Message。SSE 是实时传输层（token 片段、状态更新），Message 是持久化的完整语义单元。RunJournal 只在 LLM 调用完成时记录完整消息（`on_llm_end`），不记录流式 token。
+
+**Q2：Agent 执行过程中，哪些环节对前端可见，哪些被隐藏？**
+
+可见：AI 思考的文字流、工具调用和结果、子任务生命周期（`task_started`/`task_running`/`task_completed`）、最终回答、LLM 重试提示。
+
+不可见：10+ 个 Middleware 的内部处理（标题生成、token 统计、上下文裁剪、记忆更新）、子代理内部的工具执行细节、LangGraph checkpoint 存储、token 计数过程（只在 Run 结束时给汇总）。
+
+设计原则：暴露"做了什么决策"和"得到了什么结果"，隐藏"内部怎么执行的"。
+
+**Q3：DeerFlow 的沙箱机制如何工作？和 Claude Code 有什么区别？**
+
+两种 Provider：LocalSandbox（默认）和 AioSandbox（Docker 容器）。
+
+LocalSandbox 没有真正的进程隔离，核心机制是**双向路径映射**：Agent 看到虚拟路径（`/mnt/user-data/`、`/mnt/skills/`），后端翻译为实际磁盘路径（`.deer-flow/users/{uid}/threads/{tid}/user-data/`），输出时再换回虚拟路径。**没有匹配到映射的路径直接透传**，所以 Agent 实际能访问本机任意文件。
+
+AioSandbox 提供真正的 Docker 容器隔离（namespace + cgroup），但成本高：每个容器冷启动 1-3 秒、额外占用 100-300MB 内存、磁盘开销显著。需要显式挂载（Volume Mount）才能让 Agent 访问宿主机文件。
+
+默认选 LocalSandbox 是因为信任模型不同——DeerFlow 是自托管 Agent，不是不可信的第三方代码，和 Claude Code 直接操作本机是同一逻辑。
+
+> 💡 **Tips**：`/mnt` 是 Linux 的 mount 缩写，传统挂载点目录。DeerFlow 沿用此惯例营造"独立 Linux 环境"的感觉，无技术强制要求。
+
+> 💡 **Tips**：Claude Code 不做路径映射，因为它是单用户本地 CLI 工具，直接操作当前工作目录。DeerFlow 需要映射是因为多用户多会话隔离需求——每个 Thread 看到的都是 `/mnt/user-data/`，但底层指向不同的物理目录。
+
+**Q4：每个用户的文件是怎么组织的？**
+
+两层隔离：用户级 + Thread 级。每个用户在 `.deer-flow/users/{user_id}/` 下有独立的 `memory.json`、`agents/`、`threads/` 目录。每个 Thread 在 `threads/{thread_id}/user-data/` 下有独立的 `workspace/`（工作空间）、`uploads/`（上传文件）、`outputs/`（输出文件）。Agent 每次看到的都是 `/mnt/user-data/`，不知道自己处于哪个 Thread 或属于哪个用户。
+
+**Q5：DanglingToolCallMiddleware 解决什么问题？**
+
+用户中断 Run 后，消息历史中可能出现"悬空"的 tool_call——AI 发起了工具调用但没有对应的 ToolMessage。在同一个 Thread 中，用户下次发消息时，这段不完整的历史会被发给 LLM，导致格式校验报错。
+
+这个中间件在每次调 LLM 之前扫描历史，发现未配对的 tool_call，自动注入一条合成的 ToolMessage（`status="error"`，内容为"Tool call was interrupted"），补齐消息格式，让对话能正常继续。
+
+本质不是解决中断本身，而是解决**中断后的历史遗留问题**——Thread 是有状态的，历史消息会一直带着。
+
+**Q6：DeerFlow 的事件循环和线程模型是怎样的？**
+
+整个进程只有两个事件循环：FastAPI 的主循环（处理所有 HTTP 请求和主 Agent 执行）+ 一个独立的持久化子 Agent 循环（`_isolated_subagent_loop`，跑在单独的后台线程里）。所有用户共用这两个循环，不存在"每用户一线程"的设计。
+
+需要独立循环的原因：主 Agent 在同步调用子 Agent 工具时（`execute()` 是同步方法），内部却要跑异步代码。Python asyncio 不允许在已运行的循环里再调 `asyncio.run()`，所以把异步任务提交到另一个线程的循环里执行。持久化（不复用主循环、不每次新建）是为了避免反复创建/销毁循环导致绑在上面的 httpx 连接池等异步资源失效。
+
+**Q7：所有用户共用同一个事件循环，用户间怎么隔离？**
+
+靠**状态隔离**，不靠线程隔离。LangGraph 的 checkpoint 机制按 `thread_id` 隔离状态——每个 Thread 有独立的 messages 历史、sandbox 状态、thread_data，互不可见。LLM 本身是无状态的，隔离靠数据层面（不同 Thread 的状态互不干扰），不靠执行层面（不需要为每个用户分配独立的线程或进程）。沙箱同理：LocalSandbox 是单例，但路径映射把每个 Thread 指向不同的物理目录，Agent 看到的都是 `/mnt/user-data/`，底层是不同路径。

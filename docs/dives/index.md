@@ -6,4 +6,5 @@
 
 ## 当前拆解
 
+- [DeerFlow 深度研究报告 (2026-05-13)](deer-flow-research-2026-05-13.md) — Super Agent Harness 第二次调研，聚焦架构设计与核心模块
 - [DeerFlow 深度研究报告 (2026-04-26)](DeerFlow-research-2026-04-26.md) — 字节跳动开源 Super Agent Harness，63K Star，基于 LangGraph 的 Multi-Agent 编排运行时

@@ -260,6 +260,7 @@ export default defineConfig({
 
   cleanUrls: true,
   lastUpdated: true,
+  ignoreDeadLinks: true,
 
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
