@@ -10,3 +10,4 @@
 - [2026-05-13](/notes/2026-05-13) · deerflow, makefile, uv, sse, provider, rag
 - [2026-05-15](/notes/2026-05-15) · deerflow, architecture, thread, run, message, sandbox
 - [2026-05-16](/notes/2026-05-16) · deerflow, frontend, sse, python, fastapi, mcp, memory, sandbox
+- [2026-05-21](/notes/2026-05-21) · vercel-ai-sdk, streaming-ui, rsc, tool-calling, agent, langgraph, langchain, middleware
