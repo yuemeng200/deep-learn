@@ -41,6 +41,7 @@ function formatDate(date: string): string {
 function seriesClass(type: string): string {
   if (type === '研习') return 'home-timeline__item--study'
   if (type === '拆解') return 'home-timeline__item--dive'
+  if (type === '追问') return 'home-timeline__item--question'
   if (type === '礼记') return 'home-timeline__item--notes'
   return ''
 }

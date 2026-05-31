@@ -7,6 +7,8 @@
   --series-study-soft: rgba(134, 116, 244, 0.14);
   --series-dive: #d28c52;
   --series-dive-soft: rgba(210, 140, 82, 0.14);
+  --series-question: #4caf7d;
+  --series-question-soft: rgba(76, 175, 125, 0.14);
   --series-notes: #d96ea2;
   --series-notes-soft: rgba(217, 110, 162, 0.14);
 }
@@ -138,12 +140,21 @@
   color: var(--series-notes);
 }
 
+.home-series-nav__btn--question {
+  background: var(--series-question-soft);
+  color: var(--series-question);
+}
+
 .home-series-nav__btn--study:hover {
   background: color-mix(in srgb, var(--series-study-soft) 88%, white);
 }
 
 .home-series-nav__btn--dive:hover {
   background: color-mix(in srgb, var(--series-dive-soft) 88%, white);
+}
+
+.home-series-nav__btn--question:hover {
+  background: color-mix(in srgb, var(--series-question-soft) 88%, white);
 }
 
 .home-series-nav__btn--notes:hover {
@@ -168,6 +179,10 @@
 
 .home-series-nav__btn--dive .home-series-nav__badge {
   background: color-mix(in srgb, var(--series-dive) 18%, transparent);
+}
+
+.home-series-nav__btn--question .home-series-nav__badge {
+  background: color-mix(in srgb, var(--series-question) 18%, transparent);
 }
 
 .home-series-nav__btn--notes .home-series-nav__badge {
@@ -307,6 +322,19 @@
   background: var(--series-dive-soft);
 }
 
+.home-timeline__item--question .home-timeline__dot {
+  background: var(--series-question);
+}
+
+.home-timeline__item--question .home-timeline__meta h2,
+.home-timeline__item--question .home-timeline__type {
+  color: var(--series-question);
+}
+
+.home-timeline__item--question .home-timeline__type {
+  background: var(--series-question-soft);
+}
+
 .home-timeline__item--notes .home-timeline__dot {
   background: var(--series-notes);
 }
@@ -328,6 +356,10 @@
   border-color: var(--series-dive);
 }
 
+.home-timeline__item--question .home-timeline__content:hover {
+  border-color: var(--series-question);
+}
+
 .home-timeline__item--notes .home-timeline__content:hover {
   border-color: var(--series-notes);
 }
@@ -340,6 +372,11 @@
 .home-timeline__item--dive .home-timeline__content:hover .home-timeline__meta h2,
 .home-timeline__item--dive .home-timeline__content:hover .home-timeline__type {
   color: var(--series-dive);
+}
+
+.home-timeline__item--question .home-timeline__content:hover .home-timeline__meta h2,
+.home-timeline__item--question .home-timeline__content:hover .home-timeline__type {
+  color: var(--series-question);
 }
 
 .home-timeline__item--notes .home-timeline__content:hover .home-timeline__meta h2,

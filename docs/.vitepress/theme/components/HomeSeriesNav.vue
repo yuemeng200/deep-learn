@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 
 type TimelineItem = {
   title: string
@@ -11,9 +11,10 @@ type TimelineItem = {
 }
 
 const SERIES = [
-  { key: 'study', label: '研习', link: '/courses/', type: '研习', colorVar: '--series-study' },
-  { key: 'dive', label: '拆解', link: '/dives/', type: '拆解', colorVar: '--series-dive' },
-  { key: 'notes', label: '礼记', link: '/notes/', type: '礼记', colorVar: '--series-notes' },
+  { key: 'study', label: '研习', link: '/courses/', type: '研习' },
+  { key: 'dive', label: '拆解', link: '/dives/', type: '拆解' },
+  { key: 'question', label: '追问', link: '/questions/', type: '追问' },
+  { key: 'notes', label: '礼记', link: '/notes/', type: '礼记' },
 ] as const
 
 const { theme } = useData()
@@ -33,7 +34,7 @@ const counts = computed(() => {
     <a
       v-for="s in SERIES"
       :key="s.key"
-      :href="s.link"
+      :href="withBase(s.link)"
       :class="['home-series-nav__btn', `home-series-nav__btn--${s.key}`]"
     >
       <span class="home-series-nav__label">{{ s.label }}</span>
