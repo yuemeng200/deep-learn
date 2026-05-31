@@ -46,6 +46,13 @@ const SERIES_CONFIG = [
     navText: (name: string) => name
   },
   {
+    dir: 'questions',
+    label: '追问',
+    mode: 'files',
+    listText: '问题列表',
+    navText: (name: string) => name
+  },
+  {
     dir: 'notes',
     label: '礼记',
     mode: 'files',
@@ -294,7 +301,7 @@ function generateNav() {
 
 export default defineConfig({
   title: '新知',
-  description: '一个持续生长的个人知识系统，收录研习、拆解与礼记。',
+  description: '一个持续生长的个人知识系统，收录研习、拆解、追问与礼记。',
 
   vite: {
     plugins: [watchDocsPlugin()]
@@ -307,7 +314,7 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['meta', { property: 'og:title', content: '新知' }],
-    ['meta', { property: 'og:description', content: '一个持续生长的个人知识系统，收录研习、拆解与礼记。' }],
+    ['meta', { property: 'og:description', content: '一个持续生长的个人知识系统，收录研习、拆解、追问与礼记。' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }]
   ],
 

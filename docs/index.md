@@ -11,6 +11,9 @@ hero:
       text: 拆解
       link: /dives/
     - theme: alt
+      text: 追问
+      link: /questions/
+    - theme: alt
       text: 礼记
       link: /notes/
 ---
