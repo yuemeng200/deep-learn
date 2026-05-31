@@ -319,7 +319,7 @@ export default defineConfig({
   ],
 
   sitemap: {
-    hostname: 'https://shichangzhen.github.io/deep-learn/'
+    hostname: 'https://shichangzhen.github.io/knowledge-forge/'
   },
 
   markdown: {
