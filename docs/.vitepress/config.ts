@@ -302,6 +302,7 @@ function generateNav() {
 export default defineConfig({
   title: '新知',
   description: '一个持续生长的个人知识系统，收录研习、拆解、追问与礼记。',
+  base: '/knowledge-forge/',
 
   vite: {
     plugins: [watchDocsPlugin()]
@@ -319,7 +320,7 @@ export default defineConfig({
   ],
 
   sitemap: {
-    hostname: 'https://shichangzhen.github.io/knowledge-forge/'
+    hostname: 'https://yuemeng200.github.io/knowledge-forge/'
   },
 
   markdown: {
