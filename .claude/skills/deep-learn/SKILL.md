@@ -1,5 +1,5 @@
 ---
-name: knowledge-forge
+name: deep-learn
 description: "渐进式学习课程设计。"
 manual_only: true
 ---
